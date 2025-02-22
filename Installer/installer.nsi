@@ -213,121 +213,109 @@ Function .onInit
 FunctionEnd
 
 Function .onSelChange
-	Push $1 ; Temporary store for flags
-	Push $2 ; Selected items counter
-	Push $3 ; Selected and readonly flags
-	
-	; $3 = selected and readonly flags
-    IntOp $3 ${SF_SELECTED} | ${SF_RO}
+	; In $0 we have an ID of changed section
+	; $R1 - Temporary store for flags
+	; $R2 - Selected and readonly flags
+
+    IntOp $R2 ${SF_SELECTED} | ${SF_RO}
 
 	; Manage flags
 	${If} $0 == ${SSISTask2017}
-	    SectionGetFlags $0 $1
-        ${If} $1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2017} $3
+	    SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+			SectionSetFlags ${SSISTaskRuntime2017} $R2
 			SectionSetFlags ${SSISTaskDesigntime2017} ${SF_SELECTED}
 		${Else}
 			SectionSetFlags ${SSISTaskRuntime2017} 0
 			SectionSetFlags ${SSISTaskDesigntime2017} 0
 		${EndIf}
 	${ElseIf} $0 == ${SSISTaskDesigntime2017}
-	    SectionGetFlags $0 $1
-        ${If} $1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2017} $3
+	    SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+			SectionSetFlags ${SSISTaskRuntime2017} $R2
 		${Else}
 			SectionSetFlags ${SSISTaskRuntime2017} ${SF_SELECTED}
         ${EndIf}
 	${ElseIf} $0 == ${SSISTask2019}
-	    SectionGetFlags $0 $1
-        ${If} $1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2019} $3
+	    SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+			SectionSetFlags ${SSISTaskRuntime2019} $R2
 			SectionSetFlags ${SSISTaskDesigntime2019} ${SF_SELECTED}
 		${Else}
 			SectionSetFlags ${SSISTaskRuntime2019} 0
 			SectionSetFlags ${SSISTaskDesigntime2019} 0
 		${EndIf}
 	${ElseIf} $0 == ${SSISTaskDesigntime2019}
-	    SectionGetFlags $0 $1
-        ${If} $1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2019} $3
+	    SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+			SectionSetFlags ${SSISTaskRuntime2019} $R2
 		${Else}
 			SectionSetFlags ${SSISTaskRuntime2019} ${SF_SELECTED}
         ${EndIf}
 	${ElseIf} $0 == ${SSISTask2022}
-	    SectionGetFlags $0 $1
-        ${If} $1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2022} $3
+	    SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+			SectionSetFlags ${SSISTaskRuntime2022} $R2
 			SectionSetFlags ${SSISTaskDesigntime2022} ${SF_SELECTED}
 		${Else}
 			SectionSetFlags ${SSISTaskRuntime2022} 0
 			SectionSetFlags ${SSISTaskDesigntime2022} 0
 		${EndIf}
 	${ElseIf} $0 == ${SSISTaskDesigntime2022}
-	    SectionGetFlags $0 $1
-        ${If} $1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2022} $3
+	    SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+			SectionSetFlags ${SSISTaskRuntime2022} $R2
 		${Else}
 			SectionSetFlags ${SSISTaskRuntime2022} ${SF_SELECTED}
         ${EndIf}
 	${EndIf}
 
-	; Count selected items (dumb, but working method)
-	StrCpy $2 0
-	SectionGetFlags ${SSISTaskRuntime2017} $1
-    ${If} $1 & ${SF_SELECTED}
-		IntOp $2 $2 + 1
-	${EndIf}
-	SectionGetFlags ${SSISTaskDesignTime2017} $1
-    ${If} $1 & ${SF_SELECTED}
-		IntOp $2 $2 + 1
-	${EndIf}
-	SectionGetFlags ${SSISTaskRuntime2019} $1
-    ${If} $1 & ${SF_SELECTED}
-		IntOp $2 $2 + 1
-	${EndIf}
-	SectionGetFlags ${SSISTaskDesignTime2019} $1
-    ${If} $1 & ${SF_SELECTED}
-		IntOp $2 $2 + 1
-	${EndIf}
-	SectionGetFlags ${SSISTaskRuntime2022} $1
-    ${If} $1 & ${SF_SELECTED}
-		IntOp $2 $2 + 1
-	${EndIf}
-	SectionGetFlags ${SSISTaskDesignTime2022} $1
-    ${If} $1 & ${SF_SELECTED}
-		IntOp $2 $2 + 1
-	${EndIf}
-
 	; Disable "Install" button if none selected
-	${If} $2 == 0
-        GetDlgItem $0 $HWNDPARENT 1  ; Get handle for "Install" button
-        EnableWindow $0 0  ; Disable button
+	Call GetNumberOfSelectedSections
+	Pop $R0
+	GetDlgItem $R1 $HWNDPARENT 1  ; Get handle for "Install" button
+	${If} $R0 == 0
+        EnableWindow $R1 0  ; Disable button
     ${Else}
-        GetDlgItem $0 $HWNDPARENT 1
-        EnableWindow $0 1  ; Enable button
+        EnableWindow $R1 1  ; Enable button
     ${EndIf}
-
-	Pop $3
-	Pop $2
-	Pop $1
 FunctionEnd
 
 Function HideSectionGroup
     Exch $0  ; $0 = Input: Section Group ID
-    Push $1  ; Stores section flags
 
-    ${While} 1 == 1
-        SectionGetFlags $0 $1
+    ${Do}
+        SectionGetFlags $0 $R1
 	    SectionSetFlags $0 0
 		SectionSetText $0 "" 
-        ${If} $1 & ${SF_SECGRPEND}
-            ${ExitWhile}
+        ${If} $R1 & ${SF_SECGRPEND}
+            ${Break}
         ${EndIf}
         IntOp $0 $0 + 1
-    ${EndWhile}
+    ${Loop}
 
-    Pop $1
     Pop $0
+FunctionEnd
+
+Function GetNumberOfSelectedSections
+    StrCpy $R0 0  ; Initialize the counter of active sections in $0
+	StrCpy $R2 0  ; Initialize the counter of sections in $2
+
+    ; Loop through sections until an invalid one is found
+    ${Do}
+        StrCpy $R1 ""  ; Initialize $1 to a known value (empty string)
+        SectionGetFlags $R2 $R1  ; Get the flags of the current section
+        ${If} $R1 == ""  ; If $1 is unchanged, the section is invalid
+            ${Break}  ; Exit the loop if the section is invalid
+        ${EndIf}
+		${If} $R1 & ${SF_SELECTED}
+		${AndIfNot} $R1 & ${SF_SECGRPEND}
+			IntOp $R0 $R0 + 1 ; Increment the counter of active sections
+		${EndIf}
+        IntOp $R2 $R2 + 1  ; Increment the counter
+    ${Loop}
+
+    Push $R0 ; Push the result (number of active sections) onto the stack
 FunctionEnd
 
 ;--------------------------------

@@ -17,31 +17,60 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBotTask", "Telegram
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBotTaskUI", "TelegramBotTaskUI\TelegramBotTaskUI.csproj", "{64E39E9A-7FB6-49F6-97B0-DCF17511642F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{A8E1A296-4D3F-4E38-898E-771D108542C6}"
+	ProjectSection(SolutionItems) = preProject
+		Installer\installer.nsi = Installer\installer.nsi
+		Installer\InstallerLogo.bmp = Installer\InstallerLogo.bmp
+		Installer\license.txt = Installer\license.txt
+		Installer\UninstallerLogo.bmp = Installer\UninstallerLogo.bmp
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug-2017|Any CPU = Debug-2017|Any CPU
+		Debug-2019|Any CPU = Debug-2019|Any CPU
+		Release-2017|Any CPU = Release-2017|Any CPU
+		Release-2019|Any CPU = Release-2019|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3FB85492-F506-4969-97BA-152DB6275C87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3FB85492-F506-4969-97BA-152DB6275C87}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3FB85492-F506-4969-97BA-152DB6275C87}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3FB85492-F506-4969-97BA-152DB6275C87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Debug-2017|Any CPU.ActiveCfg = Debug-2017|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Debug-2017|Any CPU.Build.0 = Debug-2017|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Debug-2019|Any CPU.ActiveCfg = Debug-2019|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Debug-2019|Any CPU.Build.0 = Debug-2019|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Release-2017|Any CPU.ActiveCfg = Release-2017|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Release-2017|Any CPU.Build.0 = Release-2017|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Release-2019|Any CPU.ActiveCfg = Release-2019|Any CPU
+		{5743653E-EAD9-48C3-8CC9-E899F6A19BC9}.Release-2019|Any CPU.Build.0 = Release-2019|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Debug-2017|Any CPU.ActiveCfg = Debug-2017|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Debug-2017|Any CPU.Build.0 = Debug-2017|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Debug-2019|Any CPU.ActiveCfg = Debug-2019|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Debug-2019|Any CPU.Build.0 = Debug-2019|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Release-2017|Any CPU.ActiveCfg = Release-2017|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Release-2017|Any CPU.Build.0 = Release-2017|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Release-2019|Any CPU.ActiveCfg = Release-2019|Any CPU
+		{4DA6A11A-6A98-41D0-8A29-CEEBF37CE8AC}.Release-2019|Any CPU.Build.0 = Release-2019|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Debug-2017|Any CPU.ActiveCfg = Debug-2017|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Debug-2017|Any CPU.Build.0 = Debug-2017|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Debug-2019|Any CPU.ActiveCfg = Debug-2019|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Debug-2019|Any CPU.Build.0 = Debug-2019|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Release-2017|Any CPU.ActiveCfg = Release-2017|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Release-2017|Any CPU.Build.0 = Release-2017|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Release-2019|Any CPU.ActiveCfg = Release-2019|Any CPU
+		{3FB85492-F506-4969-97BA-152DB6275C87}.Release-2019|Any CPU.Build.0 = Release-2019|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Debug-2017|Any CPU.ActiveCfg = Debug-2017|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Debug-2017|Any CPU.Build.0 = Debug-2017|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Debug-2019|Any CPU.ActiveCfg = Debug-2019|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Debug-2019|Any CPU.Build.0 = Debug-2019|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Release-2017|Any CPU.ActiveCfg = Release-2017|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Release-2017|Any CPU.Build.0 = Release-2017|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Release-2019|Any CPU.ActiveCfg = Release-2019|Any CPU
+		{64E39E9A-7FB6-49F6-97B0-DCF17511642F}.Release-2019|Any CPU.Build.0 = Release-2019|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A8E1A296-4D3F-4E38-898E-771D108542C6} = {85603B0E-DCAC-48EF-9B37-25CD3E2FBFB5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2CE2370-A35C-4C2D-A823-C5B054E4EFE5}

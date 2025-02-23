@@ -115,29 +115,45 @@ Var SQL2022InstallPath32
 Var SQL2022InstallPath64
 
 ;---------------------------------------------------------------------------
+; Macro to generate runtime section contents for given SQL server version
+!macro InstallRuntimeFilesForVersion VERSION
+    SetOutPath "$INSTDIR\${VERSION}"
+    File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+    File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+!macroend
+
+;---------------------------------------------------------------------------
 ; Macro to generate designtime section contents for given SQL server version
 !macro InstallDesignTimeFilesForVersion VERSION
   ; Install files for 64-bit SQL Server
   SetOutPath "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}"
-  File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+  ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
   File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
   SetOutPath "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}"
-  File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+  ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
   File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 
   ; Install files for 32-bit SQL Server
   SetOutPath "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}"
-  File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+  ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
   File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
   SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
-  File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+  ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
   File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 !macroend
 
 ;--------------------------------
 ; Installer Sections
+Section -HelperFiles
+  ;DetailPrint "Installing helper files..."
+  SetOutPath "$INSTDIR"
+  File "..\GACInstaller\bin\Release\GACInstaller.exe"
+  ;MessageBox MB_OK "GACInstaller installed."
+SectionEnd
+
 SectionGroup /e "Microsoft SQL Server 2017" SSISTask2017
     Section "Telegram Bot SSIS Task" SSISTaskRuntime2017
+        !insertmacro InstallRuntimeFilesForVersion "2017"
     SectionEnd
 
     Section "Telegram Bot SSIS Task (Design-time)" SSISTaskDesignTime2017
@@ -147,7 +163,7 @@ SectionGroupEnd
 
 SectionGroup /e "Microsoft SQL Server 2019" SSISTask2019
     Section "Telegram Bot SSIS Task" SSISTaskRuntime2019
-        ClearErrors
+        !insertmacro InstallRuntimeFilesForVersion "2019"
     SectionEnd
 
     Section "Telegram Bot SSIS Task (Design-time)" SSISTaskDesignTime2019
@@ -157,7 +173,7 @@ SectionGroupEnd
 
 SectionGroup /e "Microsoft SQL Server 2022" SSISTask2022
     Section "Telegram Bot SSIS Task" SSISTaskRuntime2022
-        ClearErrors
+        !insertmacro InstallRuntimeFilesForVersion "2022"
     SectionEnd
 
     Section "Telegram Bot SSIS Task (Design-time)" SSISTaskDesignTime2022
@@ -165,18 +181,35 @@ SectionGroup /e "Microsoft SQL Server 2022" SSISTask2022
     SectionEnd
 SectionGroupEnd
 
+; VERSION - "Official" MS SQL version number ("2017"/"2019"/"2022")
+; VERSION_INTERNAL - "Internal" MS SQL version number ("140"/"150/"160")
+; VERSION_FLAG - bit mask for version (1 for 2017, 2 for 2019, 4 for 2022)
+!macro InitForSQLVersion VERSION VERSION_INTERNAL VERSION_FLAG
+    IntOp $R1 $R0 & ${VERSION_FLAG}
+    ${If} $R1 == "0"
+        Push ${SSISTask${VERSION}}
+        Call HideSectionGroup
+    ${Else}
+        SetRegView 32
+        ReadRegStr $SQL${VERSION}InstallPath32 HKLM "${MSSQL_KEY}\${VERSION_INTERNAL}" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SetRegView 64
+        ReadRegStr $SQL${VERSION}InstallPath64 HKLM "${MSSQL_KEY}\${VERSION_INTERNAL}" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
+    ${EndIf}
+!macroend
+
 Function .onInit
     ${IfNot} ${RunningX64}
         MessageBox MB_ICONSTOP|MB_OK "This installer is for 64-bit systems only. Installation aborted."
         Abort
     ${EndIf}
 
-    Call CheckForPowerShellInstalled
-    Pop $R0
-    ${If} $R0 == "0"
-        MessageBox MB_OK "PowerShell is not present or not functional."
-        Abort
-    ${EndIf}    
+    ;Call CheckForPowerShellInstalled
+    ;Pop $R0
+    ;${If} $R0 == "0"
+    ;    MessageBox MB_ICONSTOP|MB_OK "PowerShell is not present or not functional."
+    ;    Abort
+    ;${EndIf}    
 
     SetRegView 64
 
@@ -213,46 +246,10 @@ Function .onInit
     ; R2 = selected and readonly flags
     IntOp $R2 ${SF_SELECTED} | ${SF_RO}
     
-
-    ; Hide SQL Server 2017 group if it is not installed and get paths to it (32 and 64 bit) if installed
-    ; Todo convert to macro
-    IntOp $R1 $R0 & 1
-    ${If} $R1 == "0"
-        Push ${SSISTask2017}
-        Call HideSectionGroup
-    ${Else}
-        SetRegView 32
-        ReadRegStr $SQL2017InstallPath32 HKLM "${MSSQL_KEY}\140" ${MSSQL_ROOT_DIR_VAL_NAME}
-        SetRegView 64
-        ReadRegStr $SQL2017InstallPath64 HKLM "${MSSQL_KEY}\140" ${MSSQL_ROOT_DIR_VAL_NAME}
-        SectionSetFlags ${SSISTaskRuntime2017} $R2
-    ${EndIf}
-    
-    ; Hide SQL Server 2019 group if it is not installed and get paths to it (32 and 64 bit) if installed
-    IntOp $R1 $R0 & 2
-    ${If} $R1 == "0"
-        Push ${SSISTask2019}
-        Call HideSectionGroup
-    ${Else}
-        SetRegView 32
-        ReadRegStr $SQL2019InstallPath32 HKLM "${MSSQL_KEY}\150" ${MSSQL_ROOT_DIR_VAL_NAME}
-        SetRegView 64
-        ReadRegStr $SQL2019InstallPath64 HKLM "${MSSQL_KEY}\150" ${MSSQL_ROOT_DIR_VAL_NAME}
-        SectionSetFlags ${SSISTaskRuntime2019} $R2
-    ${EndIf}
-
-    ; Hide SQL Server 2022 group if it is not installed and get paths to it (32 and 64 bit) if installed
-    IntOp $R1 $R0 & 4
-    ${If} $R1 == "0"
-        Push ${SSISTask2022}
-        Call HideSectionGroup
-    ${Else}
-        SetRegView 32
-        ReadRegStr $SQL2022InstallPath32 HKLM "${MSSQL_KEY}\160" ${MSSQL_ROOT_DIR_VAL_NAME}
-        SetRegView 64
-        ReadRegStr $SQL2022InstallPath64 HKLM "${MSSQL_KEY}\160" ${MSSQL_ROOT_DIR_VAL_NAME}
-        SectionSetFlags ${SSISTaskRuntime2022} $R2
-    ${EndIf}
+    ; Hide product group if it is not installed / get paths to it (32 and 64 bit) if installed
+    !insertmacro InitForSQLVersion "2017" "140" 1
+    !insertmacro InitForSQLVersion "2019" "150" 2
+    !insertmacro InitForSQLVersion "2022" "160" 4
 FunctionEnd
 
 !macro HandleSSISTaskSelection VERSION
@@ -335,33 +332,33 @@ Function GetNumberOfSelectedSections
     Push $R0 ; Push the result (number of active sections) onto the stack
 FunctionEnd
 
-; Returns the Powershell version or 0 if Powershell is not installed
-Function CheckForPowerShellInstalled
-    ; Internal variables:
-    ; $R0 = Path to powershell.exe
-    ; $R1 = High part of the file version
-    ; $R2 = Low part of the file version
-    ; $R3 = Exit code from PowerShell command
-    ; $R4 = Temporary variable for version string
-
-    ; Set the path to powershell.exe
-    StrCpy $R0 "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
-
-    ; Check if powershell.exe exists
-    ${If} ${FileExists} "$R0"
-        ; Get the file version of powershell.exe
-        GetDLLVersion "$R0" $R1 $R2
-        IntOp $R4 $R1 / 0x00010000  ; Extract major version
-        IntOp $R5 $R1 & 0x0000FFFF  ; Extract minor version
-        IntOp $R6 $R2 / 0x00010000  ; Extract build version
-        IntOp $R7 $R2 & 0x0000FFFF  ; Extract revision version
-        StrCpy $R0 "$R4.$R5.$R6.$R7"  ; Combine into version string
-    ${Else}
-        StrCpy $R0 "0"  ; PowerShell not found
-    ${EndIf}
-
-    Push $R0  ; Return the result in $R0
-FunctionEnd
+;; Returns the Powershell version or 0 if Powershell is not installed
+;Function CheckForPowerShellInstalled
+;    ; Internal variables:
+;    ; $R0 = Path to powershell.exe
+;    ; $R1 = High part of the file version
+;    ; $R2 = Low part of the file version
+;    ; $R3 = Exit code from PowerShell command
+;    ; $R4 = Temporary variable for version string
+;
+;    ; Set the path to powershell.exe
+;    StrCpy $R0 "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
+;
+;    ; Check if powershell.exe exists
+;    ${If} ${FileExists} "$R0"
+;        ; Get the file version of powershell.exe
+;        GetDLLVersion "$R0" $R1 $R2
+;        IntOp $R4 $R1 / 0x00010000  ; Extract major version
+;        IntOp $R5 $R1 & 0x0000FFFF  ; Extract minor version
+;        IntOp $R6 $R2 / 0x00010000  ; Extract build version
+;        IntOp $R7 $R2 & 0x0000FFFF  ; Extract revision version
+;        StrCpy $R0 "$R4.$R5.$R6.$R7"  ; Combine into version string
+;    ${Else}
+;        StrCpy $R0 "0"  ; PowerShell not found
+;    ${EndIf}
+;
+;    Push $R0  ; Return the result in $R0
+;FunctionEnd
 
 ;--------------------------------
 ;Uninstaller Section

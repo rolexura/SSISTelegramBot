@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GACInstaller")]
-[assembly: AssemblyDescription("GAC Installer Helper Utility")]
+[assembly: AssemblyDescription("GAC Install Helper Utility")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("XBase")]
 [assembly: AssemblyProduct("GAC Installer")]

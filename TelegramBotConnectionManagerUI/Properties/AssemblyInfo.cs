@@ -32,5 +32,15 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+#if SQL2017
+[assembly: AssemblyVersion("1.0.0.2017")]
+[assembly: AssemblyFileVersion("1.0.0.2017")]
+#elif SQL2019
+[assembly: AssemblyVersion("1.0.0.2019")]
+[assembly: AssemblyFileVersion("1.0.0.2019")]
+#elif SQL2022
+[assembly: AssemblyVersion("1.0.0.2022")]
+[assembly: AssemblyFileVersion("1.0.0.2022")]
+#else
+#error "This code must be compiled with SQL2017, SQL2019 or SQL2022 defined."
+#endif

@@ -4,6 +4,6 @@ SSIS (Microsoft SQL Server Integration services) task component for sending mess
 Currently only SSIS for Microsoft SQL Server 2017 are supported.
 
 ## ToDo
-- Installer (NSIS-based)
-- Support for SQL Server 2019 and 2022
+- Installer (NSIS-based) *Work in progress*
+- ~~Support for SQL Server 2019 and 2022~~ **Done.**
 - HTTP(S) proxy support

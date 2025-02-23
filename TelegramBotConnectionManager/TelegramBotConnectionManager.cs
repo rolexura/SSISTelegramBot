@@ -3,14 +3,14 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 using System.ComponentModel;
@@ -24,10 +24,18 @@ namespace XBase.TelegramBot {
         ConnectionType = "TGBOT",
         DisplayName = "Telegram Bot Connection Manager",
         Description = "Manages connections for a Telegram bot",
-        UITypeName =
-            "XBase.TelegramBot.TelegramBotConnectionManagerUI,XBase.TelegramBotConnectionManager.UI,Version=1.0.0.0," +
+        UITypeName = "XBase.TelegramBot.TelegramBotConnectionManagerUI,XBase.TelegramBotConnectionManager.UI," +
+#if SQL2017
+            "Version=1.0.0.2017," +
+#elif SQL2019
+            "Version=1.0.0.2019," +
+#elif SQL2022
+            "Version=1.0.0.2022," +
+#else
+#error "This code must be compiled with SQL2017, SQL2019 or SQL2022 defined."
+#endif
             "Culture=neutral,PublicKeyToken=54ddf9908a8304bd"
-            //IconResource = "XBase.TelegramBot.TelegramBotConnectionManager.ico" // Does not work due to bug in VS2019 and/or SSIS 2017
+    //IconResource = "XBase.TelegramBot.TelegramBotConnectionManager.ico" // Does not work due to bug in VS2019 and/or SSIS 2017
     )]
 
     public class TelegramBotConnectionManager : SensitiveConnectionManagerBase {

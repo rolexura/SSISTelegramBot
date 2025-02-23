@@ -125,30 +125,30 @@ Var SQL2022InstallPath64
 ;---------------------------------------------------------------------------
 ; Macro to generate designtime section contents for given SQL server version
 !macro InstallDesignTimeFilesForVersion VERSION
-  ; Install files for 64-bit SQL Server
-  SetOutPath "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}"
-  ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
-  File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
-  SetOutPath "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}"
-  ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
-  File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
+    ; Install files for 64-bit SQL Server
+    SetOutPath "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}"
+    ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
+    SetOutPath "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}"
+    ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 
-  ; Install files for 32-bit SQL Server
-  SetOutPath "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}"
-  ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
-  File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
-  SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
-  ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
-  File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
+    ; Install files for 32-bit SQL Server
+    SetOutPath "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}"
+    ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
+    SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
+    ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 !macroend
 
 ;--------------------------------
 ; Installer Sections
 Section -HelperFiles
-  ;DetailPrint "Installing helper files..."
-  SetOutPath "$INSTDIR"
-  File "..\GACInstaller\bin\Release\GACInstaller.exe"
-  ;MessageBox MB_OK "GACInstaller installed."
+    ;DetailPrint "Installing helper files..."
+    SetOutPath "$INSTDIR"
+    File "..\GACInstaller\bin\Release\GACInstaller.exe"
+    ;MessageBox MB_OK "GACInstaller installed."
 SectionEnd
 
 SectionGroup /e "Microsoft SQL Server 2017" SSISTask2017
@@ -253,23 +253,23 @@ Function .onInit
 FunctionEnd
 
 !macro HandleSSISTaskSelection VERSION
-  ${If} $0 == ${SSISTask${VERSION}}
-    SectionGetFlags $0 $R1
-    ${If} $R1 & ${SF_SELECTED}
-      SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
-      SectionSetFlags ${SSISTaskDesigntime${VERSION}} ${SF_SELECTED}
-    ${Else}
-      SectionSetFlags ${SSISTaskRuntime${VERSION}} 0
-      SectionSetFlags ${SSISTaskDesigntime${VERSION}} 0
+    ${If} $0 == ${SSISTask${VERSION}}
+        SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
+            SectionSetFlags ${SSISTaskDesigntime${VERSION}} ${SF_SELECTED}
+        ${Else}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} 0
+            SectionSetFlags ${SSISTaskDesigntime${VERSION}} 0
+        ${EndIf}
+    ${ElseIf} $0 == ${SSISTaskDesigntime${VERSION}}
+        SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
+        ${Else}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} ${SF_SELECTED}
+        ${EndIf}
     ${EndIf}
-  ${ElseIf} $0 == ${SSISTaskDesigntime${VERSION}}
-    SectionGetFlags $0 $R1
-    ${If} $R1 & ${SF_SELECTED}
-      SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
-    ${Else}
-      SectionSetFlags ${SSISTaskRuntime${VERSION}} ${SF_SELECTED}
-    ${EndIf}
-  ${EndIf}
 !macroend
 
 Function .onSelChange

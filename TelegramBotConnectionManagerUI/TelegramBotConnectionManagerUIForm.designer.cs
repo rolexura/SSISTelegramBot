@@ -31,12 +31,14 @@ namespace XBase.TelegramBot {
             this.TxbAccessToken = new System.Windows.Forms.TextBox();
             this.BtnOK = new System.Windows.Forms.Button();
             this.BtnCancel = new System.Windows.Forms.Button();
+            this.PbxAbout = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.PbxAbout)).BeginInit();
             this.SuspendLayout();
             // 
             // LblChatID
             // 
             this.LblChatID.AutoSize = true;
-            this.LblChatID.Location = new System.Drawing.Point(12, 15);
+            this.LblChatID.Location = new System.Drawing.Point(6, 15);
             this.LblChatID.Name = "LblChatID";
             this.LblChatID.Size = new System.Drawing.Size(46, 13);
             this.LblChatID.TabIndex = 0;
@@ -54,7 +56,7 @@ namespace XBase.TelegramBot {
             // LblAccessToken
             // 
             this.LblAccessToken.AutoSize = true;
-            this.LblAccessToken.Location = new System.Drawing.Point(12, 42);
+            this.LblAccessToken.Location = new System.Drawing.Point(6, 42);
             this.LblAccessToken.Name = "LblAccessToken";
             this.LblAccessToken.Size = new System.Drawing.Size(75, 13);
             this.LblAccessToken.TabIndex = 2;
@@ -94,11 +96,25 @@ namespace XBase.TelegramBot {
             this.BtnCancel.UseVisualStyleBackColor = true;
             this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
+            // PbxAbout
+            // 
+            this.PbxAbout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.PbxAbout.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.PbxAbout.Image = global::XBase.TelegramBot.Properties.Resources.Help;
+            this.PbxAbout.Location = new System.Drawing.Point(9, 82);
+            this.PbxAbout.Margin = new System.Windows.Forms.Padding(0);
+            this.PbxAbout.Name = "PbxAbout";
+            this.PbxAbout.Size = new System.Drawing.Size(16, 16);
+            this.PbxAbout.TabIndex = 11;
+            this.PbxAbout.TabStop = false;
+            this.PbxAbout.Click += new System.EventHandler(this.PbxAbout_Click);
+            // 
             // TelegramBotConnectionManagerUIForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(407, 107);
+            this.Controls.Add(this.PbxAbout);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOK);
             this.Controls.Add(this.TxbAccessToken);
@@ -108,6 +124,7 @@ namespace XBase.TelegramBot {
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "TelegramBotConnectionManagerUIForm";
             this.Text = "Telegram Bot Connection Manager";
+            ((System.ComponentModel.ISupportInitialize)(this.PbxAbout)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -122,5 +139,6 @@ namespace XBase.TelegramBot {
         private System.Windows.Forms.Label LblAccessToken;
         private System.Windows.Forms.Button BtnCancel;
         public System.Windows.Forms.Button BtnOK;
+        private System.Windows.Forms.PictureBox PbxAbout;
     }
 }

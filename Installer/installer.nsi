@@ -1,7 +1,7 @@
 Unicode true
 ;--------------------------------
-;Include Modern UI
-
+;Includes
+!include "x64.nsh"
 !include "MUI2.nsh"
 
 ;--------------------------------
@@ -13,13 +13,16 @@ OutFile "MUI2_EXAMPLE.EXE"
 ;Defines
 !define COPYRIGHT_TEXT "Copyright ${U+00A9} 2025 Rostislav Uralskyi"
 !define MSSQL_KEY "SOFTWARE\Microsoft\Microsoft SQL Server"
+!define MSSQL_ROOT_DIR_VAL_NAME "VerSpecificRootDir"
 !define SSIS_STATE_VAL_NAME "SQL_DTS_Full"
+!define DTS_CONN_PATH "DTS\Connections"
+!define DTS_TASK_PATH "DTS\Tasks"
 
 ;Default installation folder
-InstallDir "$LOCALAPPDATA\Modern UI Test"
+InstallDir "$PROGRAMFILES64\SSIS Telegram Bot Task"
 
 ;Request application privileges for Windows Vista
-RequestExecutionLevel user
+RequestExecutionLevel admin
 
 !define MUI_ICON "..\TelegramBotTask\TelegramBotTask.ico"
 !define MUI_HEADERIMAGE
@@ -36,26 +39,12 @@ RequestExecutionLevel user
 !define MUI_PAGE_HEADER_TEXT "Microsoft SSIS Telegram Bot Task"
 !define MUI_PAGE_HEADER_SUBTEXT "${COPYRIGHT_TEXT}"
 
-;!define MUI_WELCOMEPAGE_TITLE "Monkeys!!!"
-;!define MUI_WELCOMEPAGE_TEXT "Welcome to the Monkey Chooser Installer!"
-;Extra space for the title area
-;!insertmacro MUI_WELCOMEPAGE_TITLE_3LINES
-
 !define MUI_LICENSEPAGE_TEXT_TOP "License agreement:"
 !define MUI_LICENSEPAGE_BUTTON "Continue"
 !define MUI_LICENSEPAGE_CHECKBOX
 !define MUI_LICENSEPAGE_CHECKBOX_TEXT "I accept the terms of this license agreement."
 
-;!define MUI_COMPONENTSPAGE_TEXT_TOP "Select some Monkeys"
-;!define MUI_COMPONENTSPAGE_TEXT_COMPLIST "Choose your Monkeys:"
-;!define MUI_COMPONENTSPAGE_TEXT_INSTTYPE "Monkey List:"
 !define MUI_COMPONENTSPAGE_NODESC
-;!define MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_TITLE "MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_TITLE"
-;!define MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_INFO "MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_INFO"
-
-;!define MUI_DIRECTORYPAGE_TEXT_TOP "MUI_DIRECTORYPAGE_TEXT_TOP"
-;!define MUI_DIRECTORYPAGE_TEXT_DESTINATION "MUI_DIRECTORYPAGE_TEXT_DESTINATION"
-;!define MUI_DIRECTORYPAGE_VARIABLE $INSTDIR
 
 !define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Everything is done."
 !define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "Now there are monkeys loose. Sick sick monkeys."
@@ -91,7 +80,7 @@ RequestExecutionLevel user
 !define MUI_FINISHPAGE_LINK_LOCATION "http://www.reddit.com/"
 ;!define MUI_FINISHPAGE_LINK_COLOR RRGGBB
 
-!define MUI_FINISHPAGE_NOREBOOTSUPPORT
+;!define MUI_FINISHPAGE_NOREBOOTSUPPORT
 
 ;!define MUI_UNCONFIRMPAGE_TEXT_TOP "MUI_UNCONFIRMPAGE_TEXT_TOP"
 ;!define MUI_UNCONFIRMPAGE_TEXT_LOCATION "MUI_UNCONFIRMPAGE_TEXT_LOCATION"
@@ -106,7 +95,9 @@ RequestExecutionLevel user
 !undef MUI_PAGE_HEADER_TEXT
 !define MUI_PAGE_HEADER_TEXT "Select components to install"
 !insertmacro MUI_PAGE_COMPONENTS
-;!insertmacro MUI_PAGE_DIRECTORY
+!undef MUI_PAGE_HEADER_TEXT
+!define MUI_PAGE_HEADER_TEXT "Select destination folder"
+!insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
@@ -115,16 +106,42 @@ RequestExecutionLevel user
 ;!insertmacro MUI_UNPAGE_INSTFILES
 ;!insertmacro MUI_UNPAGE_FINISH
 
-;--------------------------------
-;Installer Sections
+; Install paths for all supported SQL Server versions
+Var SQL2017InstallPath32
+Var SQL2017InstallPath64
+Var SQL2019InstallPath32
+Var SQL2019InstallPath64
+Var SQL2022InstallPath32
+Var SQL2022InstallPath64
 
+;---------------------------------------------------------------------------
+; Macro to generate designtime section contents for given SQL server version
+!macro InstallDesignTimeFilesForVersion VERSION
+  ; Install files for 64-bit SQL Server
+  SetOutPath "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}"
+  File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+  File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
+  SetOutPath "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}"
+  File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+  File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
+
+  ; Install files for 32-bit SQL Server
+  SetOutPath "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}"
+  File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+  File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
+  SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
+  File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+  File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
+!macroend
+
+;--------------------------------
+; Installer Sections
 SectionGroup /e "Microsoft SQL Server 2017" SSISTask2017
     Section "Telegram Bot SSIS Task" SSISTaskRuntime2017
-        ClearErrors
     SectionEnd
 
     Section "Telegram Bot SSIS Task (Design-time)" SSISTaskDesignTime2017
-        ClearErrors
+        !insertmacro InstallDesignTimeFilesForVersion "2017"
     SectionEnd
 SectionGroupEnd
 
@@ -134,7 +151,7 @@ SectionGroup /e "Microsoft SQL Server 2019" SSISTask2019
     SectionEnd
 
     Section "Telegram Bot SSIS Task (Design-time)" SSISTaskDesignTime2019
-        ClearErrors
+        !insertmacro InstallDesignTimeFilesForVersion "2019"
     SectionEnd
 SectionGroupEnd
 
@@ -144,137 +161,137 @@ SectionGroup /e "Microsoft SQL Server 2022" SSISTask2022
     SectionEnd
 
     Section "Telegram Bot SSIS Task (Design-time)" SSISTaskDesignTime2022
-        ClearErrors
+        !insertmacro InstallDesignTimeFilesForVersion "2022"
     SectionEnd
 SectionGroupEnd
 
 Function .onInit
+    ${IfNot} ${RunningX64}
+        MessageBox MB_ICONSTOP|MB_OK "This installer is for 64-bit systems only. Installation aborted."
+        Abort
+    ${EndIf}
+
+    Call CheckForPowerShellInstalled
+    Pop $R0
+    ${If} $R0 == "0"
+        MessageBox MB_OK "PowerShell is not present or not functional."
+        Abort
+    ${EndIf}    
+
     SetRegView 64
 
     ; In $R0 we create bitmask of installed SSIS versions:
-	;   bit 0 - 2017
-	;   bit 1 - 2019
-	;   bit 2 - 2022
-	StrCpy $R0 0
-	
+    ;   bit 0 - 2017
+    ;   bit 1 - 2019
+    ;   bit 2 - 2022
+    StrCpy $R0 0
+    
     ; Check for SSIS 2017
     ReadRegStr $R1 HKLM "${MSSQL_KEY}\140\ConfigurationState" ${SSIS_STATE_VAL_NAME}
     ${If} $R1 == "1"
-		IntOp $R0 $R0 | 1
-	${EndIf}
+        IntOp $R0 $R0 | 1
+    ${EndIf}
 
     ; Check for SSIS 2019
     ReadRegStr $R1 HKLM "${MSSQL_KEY}\150\ConfigurationState" ${SSIS_STATE_VAL_NAME}
-	${If} $R1 == "1"
-		IntOp $R0 $R0 | 2
-	${EndIf}
-	
+    ${If} $R1 == "1"
+        IntOp $R0 $R0 | 2
+    ${EndIf}
+    
     ; Check for SSIS 2022
     ReadRegStr $R1 HKLM "${MSSQL_KEY}\160\ConfigurationState" ${SSIS_STATE_VAL_NAME}
-	${If} $R1 == "1"
-		IntOp $R0 $R0 | 4
-	${EndIf}
+    ${If} $R1 == "1"
+        IntOp $R0 $R0 | 4
+    ${EndIf}
 
-	; If none of supported versions installed
-	${If} $R0 == "0"
-        MessageBox MB_OK "Microsoft SQL Server 2017/2019/2022 Integration services is not installed. Installation aborted."
+    ; If none of supported versions installed
+    ${If} $R0 == "0"
+        MessageBox MB_ICONSTOP|MB_OK "Microsoft SQL Server 2017/2019/2022 Integration services is not installed. Installation aborted."
         Abort
     ${EndIf}
-	
-	; R2 = selected and readonly flags
+    
+    ; R2 = selected and readonly flags
     IntOp $R2 ${SF_SELECTED} | ${SF_RO}
-	
-	; Hide SQL Server 2017 group if it is not installed
-	IntOp $R1 $R0 & 1
-	${If} $R1 == "0"
-		Push ${SSISTask2017}
-		Call HideSectionGroup
-	${Else}
-		SectionSetFlags ${SSISTaskRuntime2017} $R2
-	${EndIf}
-	
-	; Hide SQL Server 2019 group if it is not installed
-	IntOp $R1 $R0 & 2
-	${If} $R1 == "0"
-		Push ${SSISTask2019}
-		Call HideSectionGroup
-	${Else}
-		SectionSetFlags ${SSISTaskRuntime2019} $R2
-	${EndIf}
+    
 
-	; Hide SQL Server 2022 group if it is not installed
-	IntOp $R1 $R0 & 4
-	${If} $R1 == "0"
-		Push ${SSISTask2022}
-		Call HideSectionGroup
-	${Else}
-		SectionSetFlags ${SSISTaskRuntime2022} $R2
-	${EndIf}
+    ; Hide SQL Server 2017 group if it is not installed and get paths to it (32 and 64 bit) if installed
+    ; Todo convert to macro
+    IntOp $R1 $R0 & 1
+    ${If} $R1 == "0"
+        Push ${SSISTask2017}
+        Call HideSectionGroup
+    ${Else}
+        SetRegView 32
+        ReadRegStr $SQL2017InstallPath32 HKLM "${MSSQL_KEY}\140" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SetRegView 64
+        ReadRegStr $SQL2017InstallPath64 HKLM "${MSSQL_KEY}\140" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SectionSetFlags ${SSISTaskRuntime2017} $R2
+    ${EndIf}
+    
+    ; Hide SQL Server 2019 group if it is not installed and get paths to it (32 and 64 bit) if installed
+    IntOp $R1 $R0 & 2
+    ${If} $R1 == "0"
+        Push ${SSISTask2019}
+        Call HideSectionGroup
+    ${Else}
+        SetRegView 32
+        ReadRegStr $SQL2019InstallPath32 HKLM "${MSSQL_KEY}\150" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SetRegView 64
+        ReadRegStr $SQL2019InstallPath64 HKLM "${MSSQL_KEY}\150" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SectionSetFlags ${SSISTaskRuntime2019} $R2
+    ${EndIf}
+
+    ; Hide SQL Server 2022 group if it is not installed and get paths to it (32 and 64 bit) if installed
+    IntOp $R1 $R0 & 4
+    ${If} $R1 == "0"
+        Push ${SSISTask2022}
+        Call HideSectionGroup
+    ${Else}
+        SetRegView 32
+        ReadRegStr $SQL2022InstallPath32 HKLM "${MSSQL_KEY}\160" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SetRegView 64
+        ReadRegStr $SQL2022InstallPath64 HKLM "${MSSQL_KEY}\160" ${MSSQL_ROOT_DIR_VAL_NAME}
+        SectionSetFlags ${SSISTaskRuntime2022} $R2
+    ${EndIf}
 FunctionEnd
 
+!macro HandleSSISTaskSelection VERSION
+  ${If} $0 == ${SSISTask${VERSION}}
+    SectionGetFlags $0 $R1
+    ${If} $R1 & ${SF_SELECTED}
+      SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
+      SectionSetFlags ${SSISTaskDesigntime${VERSION}} ${SF_SELECTED}
+    ${Else}
+      SectionSetFlags ${SSISTaskRuntime${VERSION}} 0
+      SectionSetFlags ${SSISTaskDesigntime${VERSION}} 0
+    ${EndIf}
+  ${ElseIf} $0 == ${SSISTaskDesigntime${VERSION}}
+    SectionGetFlags $0 $R1
+    ${If} $R1 & ${SF_SELECTED}
+      SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
+    ${Else}
+      SectionSetFlags ${SSISTaskRuntime${VERSION}} ${SF_SELECTED}
+    ${EndIf}
+  ${EndIf}
+!macroend
+
 Function .onSelChange
-	; In $0 we have an ID of changed section
-	; $R1 - Temporary store for flags
-	; $R2 - Selected and readonly flags
+    ; In $0 we have an ID of changed section
+    ; $R1 - Temporary store for flags
+    ; $R2 - Selected and readonly flags
 
     IntOp $R2 ${SF_SELECTED} | ${SF_RO}
 
-	; Manage flags
-	${If} $0 == ${SSISTask2017}
-	    SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2017} $R2
-			SectionSetFlags ${SSISTaskDesigntime2017} ${SF_SELECTED}
-		${Else}
-			SectionSetFlags ${SSISTaskRuntime2017} 0
-			SectionSetFlags ${SSISTaskDesigntime2017} 0
-		${EndIf}
-	${ElseIf} $0 == ${SSISTaskDesigntime2017}
-	    SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2017} $R2
-		${Else}
-			SectionSetFlags ${SSISTaskRuntime2017} ${SF_SELECTED}
-        ${EndIf}
-	${ElseIf} $0 == ${SSISTask2019}
-	    SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2019} $R2
-			SectionSetFlags ${SSISTaskDesigntime2019} ${SF_SELECTED}
-		${Else}
-			SectionSetFlags ${SSISTaskRuntime2019} 0
-			SectionSetFlags ${SSISTaskDesigntime2019} 0
-		${EndIf}
-	${ElseIf} $0 == ${SSISTaskDesigntime2019}
-	    SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2019} $R2
-		${Else}
-			SectionSetFlags ${SSISTaskRuntime2019} ${SF_SELECTED}
-        ${EndIf}
-	${ElseIf} $0 == ${SSISTask2022}
-	    SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2022} $R2
-			SectionSetFlags ${SSISTaskDesigntime2022} ${SF_SELECTED}
-		${Else}
-			SectionSetFlags ${SSISTaskRuntime2022} 0
-			SectionSetFlags ${SSISTaskDesigntime2022} 0
-		${EndIf}
-	${ElseIf} $0 == ${SSISTaskDesigntime2022}
-	    SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-			SectionSetFlags ${SSISTaskRuntime2022} $R2
-		${Else}
-			SectionSetFlags ${SSISTaskRuntime2022} ${SF_SELECTED}
-        ${EndIf}
-	${EndIf}
+    ; Manage flags
+    !insertmacro HandleSSISTaskSelection "2017"
+    !insertmacro HandleSSISTaskSelection "2019"
+    !insertmacro HandleSSISTaskSelection "2022"
 
-	; Disable "Install" button if none selected
-	Call GetNumberOfSelectedSections
-	Pop $R0
-	GetDlgItem $R1 $HWNDPARENT 1  ; Get handle for "Install" button
-	${If} $R0 == 0
+    ; Disable "Install" button if none selected
+    Call GetNumberOfSelectedSections
+    Pop $R0
+    GetDlgItem $R1 $HWNDPARENT 1  ; Get handle for "Install" button
+    ${If} $R0 == 0
         EnableWindow $R1 0  ; Disable button
     ${Else}
         EnableWindow $R1 1  ; Enable button
@@ -286,8 +303,8 @@ Function HideSectionGroup
 
     ${Do}
         SectionGetFlags $0 $R1
-	    SectionSetFlags $0 0
-		SectionSetText $0 "" 
+        SectionSetFlags $0 0
+        SectionSetText $0 "" 
         ${If} $R1 & ${SF_SECGRPEND}
             ${Break}
         ${EndIf}
@@ -299,7 +316,7 @@ FunctionEnd
 
 Function GetNumberOfSelectedSections
     StrCpy $R0 0  ; Initialize the counter of active sections in $0
-	StrCpy $R2 0  ; Initialize the counter of sections in $2
+    StrCpy $R2 0  ; Initialize the counter of sections in $2
 
     ; Loop through sections until an invalid one is found
     ${Do}
@@ -308,14 +325,42 @@ Function GetNumberOfSelectedSections
         ${If} $R1 == ""  ; If $1 is unchanged, the section is invalid
             ${Break}  ; Exit the loop if the section is invalid
         ${EndIf}
-		${If} $R1 & ${SF_SELECTED}
-		${AndIfNot} $R1 & ${SF_SECGRPEND}
-			IntOp $R0 $R0 + 1 ; Increment the counter of active sections
-		${EndIf}
+        ${If} $R1 & ${SF_SELECTED}
+        ${AndIfNot} $R1 & ${SF_SECGRPEND}
+            IntOp $R0 $R0 + 1 ; Increment the counter of active sections
+        ${EndIf}
         IntOp $R2 $R2 + 1  ; Increment the counter
     ${Loop}
 
     Push $R0 ; Push the result (number of active sections) onto the stack
+FunctionEnd
+
+; Returns the Powershell version or 0 if Powershell is not installed
+Function CheckForPowerShellInstalled
+    ; Internal variables:
+    ; $R0 = Path to powershell.exe
+    ; $R1 = High part of the file version
+    ; $R2 = Low part of the file version
+    ; $R3 = Exit code from PowerShell command
+    ; $R4 = Temporary variable for version string
+
+    ; Set the path to powershell.exe
+    StrCpy $R0 "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
+
+    ; Check if powershell.exe exists
+    ${If} ${FileExists} "$R0"
+        ; Get the file version of powershell.exe
+        GetDLLVersion "$R0" $R1 $R2
+        IntOp $R4 $R1 / 0x00010000  ; Extract major version
+        IntOp $R5 $R1 & 0x0000FFFF  ; Extract minor version
+        IntOp $R6 $R2 / 0x00010000  ; Extract build version
+        IntOp $R7 $R2 & 0x0000FFFF  ; Extract revision version
+        StrCpy $R0 "$R4.$R5.$R6.$R7"  ; Combine into version string
+    ${Else}
+        StrCpy $R0 "0"  ; PowerShell not found
+    ${EndIf}
+
+    Push $R0  ; Return the result in $R0
 FunctionEnd
 
 ;--------------------------------

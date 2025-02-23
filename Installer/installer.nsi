@@ -6,8 +6,9 @@ Unicode true
 
 ;--------------------------------
 ;General
-Name "Microsoft SSIS Telegram Bot Task"
+Name "Microsoft SSIS Telegram Bot Task 1.0.0"
 OutFile "MUI2_EXAMPLE.EXE"
+SetCompressor /FINAL /SOLID lzma
 
 ;--------------------------------
 ;Defines
@@ -17,6 +18,7 @@ OutFile "MUI2_EXAMPLE.EXE"
 !define SSIS_STATE_VAL_NAME "SQL_DTS_Full"
 !define DTS_CONN_PATH "DTS\Connections"
 !define DTS_TASK_PATH "DTS\Tasks"
+!define PUBLIC_KEY_TOKEN "54ddf9908a8304bd"
 
 ;Default installation folder
 InstallDir "$PROGRAMFILES64\SSIS Telegram Bot Task"
@@ -120,25 +122,26 @@ Var SQL2022InstallPath64
     SetOutPath "$INSTDIR\${VERSION}"
     File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
     File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
-!macroend
+    ExecWait '"$INSTDIR\GacInstaller.exe" "$INSTDIR\${VERSION}\XBase.TelegramBotConnectionManager.dll"'
+    ExecWait '"$INSTDIR\GacInstaller.exe" "$INSTDIR\${VERSION}\XBase.TelegramBotTask.dll"'
+    Delete "$INSTDIR\${VERSION}\*.*" ; This files are installed in GAC and not needed more
+    SetOutPath "$INSTDIR"  ; We cannot remove current working directory, so we must change it
+    RMDir "$INSTDIR\${VERSION}"
+!macroend   
 
 ;---------------------------------------------------------------------------
 ; Macro to generate designtime section contents for given SQL server version
 !macro InstallDesignTimeFilesForVersion VERSION
     ; Install files for 64-bit SQL Server
     SetOutPath "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}"
-    ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
     File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
     SetOutPath "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}"
-    ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
     File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 
     ; Install files for 32-bit SQL Server
     SetOutPath "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}"
-    ;File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
     File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
     SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
-    ;File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
     File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 !macroend
 
@@ -148,7 +151,6 @@ Section -HelperFiles
     ;DetailPrint "Installing helper files..."
     SetOutPath "$INSTDIR"
     File "..\GACInstaller\bin\Release\GACInstaller.exe"
-    ;MessageBox MB_OK "GACInstaller installed."
 SectionEnd
 
 SectionGroup /e "Microsoft SQL Server 2017" SSISTask2017
@@ -180,6 +182,15 @@ SectionGroup /e "Microsoft SQL Server 2022" SSISTask2022
         !insertmacro InstallDesignTimeFilesForVersion "2022"
     SectionEnd
 SectionGroupEnd
+
+; VERSION_INTERNAL - "Internal" MS SQL version number ("140"/"150/"160")
+; VERSION_FLAG - bit mask for version (1 for 2017, 2 for 2019, 4 for 2022)
+!macro CheckForSQLVersion VERSION_INTERNAL VERSION_FLAG
+    ReadRegStr $R1 HKLM "${MSSQL_KEY}\${VERSION_INTERNAL}\ConfigurationState" ${SSIS_STATE_VAL_NAME}
+    ${If} $R1 == "1"
+        IntOp $R0 $R0 | ${VERSION_FLAG}
+    ${EndIf}
+!macroend
 
 ; VERSION - "Official" MS SQL version number ("2017"/"2019"/"2022")
 ; VERSION_INTERNAL - "Internal" MS SQL version number ("140"/"150/"160")
@@ -213,29 +224,12 @@ Function .onInit
 
     SetRegView 64
 
-    ; In $R0 we create bitmask of installed SSIS versions:
-    ;   bit 0 - 2017
-    ;   bit 1 - 2019
-    ;   bit 2 - 2022
+    ; In $R0 we create bitmask of installed SSIS versions
     StrCpy $R0 0
     
-    ; Check for SSIS 2017
-    ReadRegStr $R1 HKLM "${MSSQL_KEY}\140\ConfigurationState" ${SSIS_STATE_VAL_NAME}
-    ${If} $R1 == "1"
-        IntOp $R0 $R0 | 1
-    ${EndIf}
-
-    ; Check for SSIS 2019
-    ReadRegStr $R1 HKLM "${MSSQL_KEY}\150\ConfigurationState" ${SSIS_STATE_VAL_NAME}
-    ${If} $R1 == "1"
-        IntOp $R0 $R0 | 2
-    ${EndIf}
-    
-    ; Check for SSIS 2022
-    ReadRegStr $R1 HKLM "${MSSQL_KEY}\160\ConfigurationState" ${SSIS_STATE_VAL_NAME}
-    ${If} $R1 == "1"
-        IntOp $R0 $R0 | 4
-    ${EndIf}
+    !insertmacro CheckForSQLVersion "140" 1
+    !insertmacro CheckForSQLVersion "150" 2
+    !insertmacro CheckForSQLVersion "160" 4
 
     ; If none of supported versions installed
     ${If} $R0 == "0"

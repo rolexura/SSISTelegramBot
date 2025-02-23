@@ -16,45 +16,73 @@
 using System;
 using System.IO;
 using System.EnterpriseServices.Internal;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace GACInstaller {
     public class GACInstaller {
+        [DllImport("fusion.dll", CharSet = CharSet.Auto)]
+        private static extern int CreateAssemblyCache(out IAssemblyCache ppAsmCache, int reserved);
+
+
         [STAThread]
         public static void Main(string[] args) {
             const string appName = "GAC Install Helper";
 
             if (args.Length < 1) {
                 MessageBox.Show(
-                    "Usage:\n\nTo Install: GacInstaller.exe assembly.dll\nTo Uninstall: GacInstaller.exe /u assembly.dll",
-                    appName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    "Usage:\n\nTo Install: GacInstaller.exe assembly.dll\nTo Uninstall: GacInstaller.exe /u AssemblyName,Version=x.x.x.x,PublicKeyToken=abcdef1234567890",
+                        appName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             var isUninstall = args[0].Equals("/u", StringComparison.OrdinalIgnoreCase);
-            var assemblyPath = isUninstall ? (args.Length > 1 ? args[1] : null) : args[0];
+            var target = isUninstall ? (args.Length > 1 ? args[1] : null) : args[0];
 
-            if (string.IsNullOrEmpty(assemblyPath) || !File.Exists(assemblyPath)) {
-                MessageBox.Show($"Error: Assembly file not found.\n\nPath: {assemblyPath}", appName,
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (string.IsNullOrEmpty(target)) {
+                MessageBox.Show("Error: Missing assembly information.", appName,
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             try {
-                var publish = new Publish();
-
                 if (isUninstall) {
-                    publish.GacRemove(assemblyPath);
-                    MessageBox.Show("Assembly removed from GAC successfully!", appName, MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                    var result = UninstallFromGAC(target);
+                    if (result == 0) {
+                        MessageBox.Show($"Assembly '{target}' removed from GAC successfully!", appName,
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    } else {
+                        MessageBox.Show($"Failed to remove assembly '{target}' from GAC.", appName,
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 } else {
-                    publish.GacInstall(assemblyPath);
-                    MessageBox.Show("Assembly installed to GAC successfully!", appName, MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
+                    if (!File.Exists(target)) {
+                        MessageBox.Show($"Error: File not found: {target}", appName,
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    var publish = new Publish();
+                    publish.GacInstall(target);
+                    //MessageBox.Show("Assembly installed to GAC successfully!", appName,
+                    //        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             } catch (Exception ex) {
-                MessageBox.Show($"Operation failed: {ex.Message}", appName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error: {ex.Message}", appName,
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private static int UninstallFromGAC(string assemblyName) {
+            CreateAssemblyCache(out var assemblyCache, 0);
+            return assemblyCache?.UninstallAssembly(0, assemblyName, IntPtr.Zero, out _) ?? -1;
+        }
+    }
+
+
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [Guid("e707dcde-d1cd-11d2-bab9-00c04f8eceae")]
+    internal interface IAssemblyCache {
+        int UninstallAssembly(int flags, [MarshalAs(UnmanagedType.LPWStr)] string assemblyName, IntPtr reserved, out int disposition);
     }
 }

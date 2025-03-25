@@ -48,13 +48,19 @@ namespace GACInstaller {
             try {
                 if (isUninstall) {
                     var result = UninstallFromGAC(target);
-                    if (result == 0) {
-                        MessageBox.Show($"Assembly '{target}' removed from GAC successfully!", appName,
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    } else {
+                    if (result != 0) {
                         MessageBox.Show($"Failed to remove assembly '{target}' from GAC.", appName,
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+
+                    //if (result == 0) {
+                    //    MessageBox.Show($"Assembly '{target}' removed from GAC successfully!", appName,
+                    //            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    //} else {
+                    //    MessageBox.Show($"Failed to remove assembly '{target}' from GAC.", appName,
+                    //            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //}
+
                 } else {
                     if (!File.Exists(target)) {
                         MessageBox.Show($"Error: File not found: {target}", appName,

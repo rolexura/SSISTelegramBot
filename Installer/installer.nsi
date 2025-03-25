@@ -5,14 +5,11 @@ Unicode true
 !include "MUI2.nsh"
 
 ;--------------------------------
-;General
-Name "Microsoft SSIS Telegram Bot Task 1.0.0"
-OutFile "MUI2_EXAMPLE.EXE"
-SetCompressor /FINAL /SOLID lzma
-
-;--------------------------------
 ;Defines
-!define COPYRIGHT_TEXT "Copyright ${U+00A9} 2025 Rostislav Uralskyi"
+!define PRODUCT_NAME "Microsoft SSIS Telegram Bot Task"
+!define PRODUCT_VERSION "1.0.0"
+!define PRODUCT_AUTHOR "Rostislav Uralskyi"
+!define COPYRIGHT_TEXT "Copyright ${U+00A9} 2025 ${PRODUCT_AUTHOR}"
 !define MSSQL_KEY "SOFTWARE\Microsoft\Microsoft SQL Server"
 !define MSSQL_ROOT_DIR_VAL_NAME "VerSpecificRootDir"
 !define SSIS_STATE_VAL_NAME "SQL_DTS_Full"
@@ -20,22 +17,25 @@ SetCompressor /FINAL /SOLID lzma
 !define DTS_TASK_PATH "DTS\Tasks"
 !define PUBLIC_KEY_TOKEN "54ddf9908a8304bd"
 
-;Default installation folder
-InstallDir "$PROGRAMFILES64\SSIS Telegram Bot Task"
-
+;--------------------------------
+;General
+Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+OutFile "MUI2_EXAMPLE.EXE"
+SetCompressor /FINAL /SOLID lzma
 ;Request application privileges for Windows Vista
 RequestExecutionLevel admin
 
+;Default installation folder
+InstallDir "$PROGRAMFILES64\SSIS Telegram Bot Task"
+
+
 !define MUI_ICON "..\TelegramBotTask\TelegramBotTask.ico"
+!define MUI_UNICON "..\TelegramBotTask\TelegramBotTask.ico"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "InstallerLogo.bmp"
 !define MUI_HEADERIMAGE_UNBITMAP "UninstallerLogo.bmp"
 !define MUI_BGCOLOR 051338
 !define MUI_TEXTCOLOR FFFFFF
-
-;--------------------------------
-;Languages
-!insertmacro MUI_LANGUAGE "English"
 
 ;--------------------------------
 !define MUI_PAGE_HEADER_TEXT "Microsoft SSIS Telegram Bot Task"
@@ -48,65 +48,30 @@ RequestExecutionLevel admin
 
 !define MUI_COMPONENTSPAGE_NODESC
 
-!define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Everything is done."
-!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "Now there are monkeys loose. Sick sick monkeys."
-!define MUI_INSTFILESPAGE_ABORTHEADER_TEXT "You didn't let it finish."
-!define MUI_INSTFILESPAGE_ABORTHEADER_SUBTEXT "Patience is a virtue you know. I guess you aren't terribly virtuous."
-
-!define MUI_FINISHPAGE_TITLE "Finished!"
-;!define MUI_FINISHPAGE_TITLE_3LINES
-!define MUI_FINISHPAGE_TEXT "Monkey Time!"
-;Extra space for the text area (if using checkboxes).
-;!define MUI_FINISHPAGE_TEXT_LARGE
-!define MUI_FINISHPAGE_BUTTON "Booyah."
-;!define MUI_FINISHPAGE_CANCEL_ENABLED
-;!define MUI_FINISHPAGE_TEXT_REBOOT "MUI_FINISHPAGE_TEXT_REBOOT"
-;!define MUI_FINISHPAGE_TEXT_REBOOTNOW "MUI_FINISHPAGE_TEXT_REBOOTNOW"
-;!define MUI_FINISHPAGE_TEXT_REBOOTLATER "MUI_FINISHPAGE_TEXT_REBOOTLATER"
-;!define MUI_FINISHPAGE_TEXT_REBOOTLATER_DEFAULT
-
-;!define MUI_FINISHPAGE_RUN "some_exe_file"
-;!define MUI_FINISHPAGE_RUN_TEXT "MUI_FINISHPAGE_RUN_TEXT"
-;Parameters for the application to run. Don't forget to escape double quotes in the value (use $\").
-;!define MUI_FINISHPAGE_RUN_PARAMETERS
-;!define MUI_FINISHPAGE_RUN_NOTCHECKED
-;!define MUI_FINISHPAGE_RUN_FUNCTION
-
-!define MUI_FINISHPAGE_SHOWREADME "somefile.txt"
-;Don't make this label too long or it'll cut on top and bottom.
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "This would open a README if there was one."
-!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-;MUI_FINISHPAGE_SHOWREADME_FUNCTION Function
-
-!define MUI_FINISHPAGE_LINK "This goes to reddit just because."
-!define MUI_FINISHPAGE_LINK_LOCATION "http://www.reddit.com/"
-;!define MUI_FINISHPAGE_LINK_COLOR RRGGBB
-
-;!define MUI_FINISHPAGE_NOREBOOTSUPPORT
-
-;!define MUI_UNCONFIRMPAGE_TEXT_TOP "MUI_UNCONFIRMPAGE_TEXT_TOP"
-;!define MUI_UNCONFIRMPAGE_TEXT_LOCATION "MUI_UNCONFIRMPAGE_TEXT_LOCATION"
-
-;hide descriptions on hover
-;!define MUI_COMPONENTSPAGE_NODESC
+!define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "Installation completed successfully."
+!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "${COPYRIGHT_TEXT}"
+!define MUI_INSTFILESPAGE_ABORTHEADER_TEXT "Installation not finished."
+!define MUI_INSTFILESPAGE_ABORTHEADER_SUBTEXT "${COPYRIGHT_TEXT}"
 
 ;--------------------------------
 ;Pages
 ;!insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "license.txt"
-!undef MUI_PAGE_HEADER_TEXT
 !define MUI_PAGE_HEADER_TEXT "Select components to install"
 !insertmacro MUI_PAGE_COMPONENTS
-!undef MUI_PAGE_HEADER_TEXT
 !define MUI_PAGE_HEADER_TEXT "Select destination folder"
 !insertmacro MUI_PAGE_DIRECTORY
+!define MUI_PAGE_HEADER_TEXT "Installation in progress${U+2026}"
 !insertmacro MUI_PAGE_INSTFILES
-!insertmacro MUI_PAGE_FINISH
+;!insertmacro MUI_PAGE_FINISH
 
 ;!insertmacro MUI_UNPAGE_WELCOME
-;!insertmacro MUI_UNPAGE_CONFIRM
-;!insertmacro MUI_UNPAGE_INSTFILES
-;!insertmacro MUI_UNPAGE_FINISH
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+
+;--------------------------------
+;Languages
+!insertmacro MUI_LANGUAGE "English"
 
 ; Install paths for all supported SQL Server versions
 Var SQL2017InstallPath32
@@ -143,6 +108,15 @@ Var SQL2022InstallPath64
     File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
     SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
     File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
+!macroend
+
+!macro DeleteFilesForVersion VERSION
+    Delete "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.UI.dll"
+    Delete "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.UI.dll"
+    Delete "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}\XBase.TelegramBotTask.UI.dll"
+    Delete "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}\XBase.TelegramBotTask.UI.dll"
+    ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotConnectionManager,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
+    ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotTask,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
 !macroend
 
 ;--------------------------------
@@ -194,6 +168,20 @@ SectionGroupEnd
 
 ; VERSION - "Official" MS SQL version number ("2017"/"2019"/"2022")
 ; VERSION_INTERNAL - "Internal" MS SQL version number ("140"/"150/"160")
+!macro ReadSQLInstallPath VERSION VERSION_INTERNAL
+    ; Read 32-bit registry path
+    SetRegView 32
+    ReadRegStr $0 HKLM "${MSSQL_KEY}\${VERSION_INTERNAL}" ${MSSQL_ROOT_DIR_VAL_NAME}
+    StrCpy $SQL${VERSION}InstallPath32 $0  ; Store in version-specific variable
+
+    ; Read 64-bit registry path
+    SetRegView 64
+    ReadRegStr $0 HKLM "${MSSQL_KEY}\${VERSION_INTERNAL}" ${MSSQL_ROOT_DIR_VAL_NAME}
+    StrCpy $SQL${VERSION}InstallPath64 $0
+!macroend
+
+; VERSION - "Official" MS SQL version number ("2017"/"2019"/"2022")
+; VERSION_INTERNAL - "Internal" MS SQL version number ("140"/"150/"160")
 ; VERSION_FLAG - bit mask for version (1 for 2017, 2 for 2019, 4 for 2022)
 !macro InitForSQLVersion VERSION VERSION_INTERNAL VERSION_FLAG
     IntOp $R1 $R0 & ${VERSION_FLAG}
@@ -201,26 +189,85 @@ SectionGroupEnd
         Push ${SSISTask${VERSION}}
         Call HideSectionGroup
     ${Else}
-        SetRegView 32
-        ReadRegStr $SQL${VERSION}InstallPath32 HKLM "${MSSQL_KEY}\${VERSION_INTERNAL}" ${MSSQL_ROOT_DIR_VAL_NAME}
-        SetRegView 64
-        ReadRegStr $SQL${VERSION}InstallPath64 HKLM "${MSSQL_KEY}\${VERSION_INTERNAL}" ${MSSQL_ROOT_DIR_VAL_NAME}
+        !insertmacro ReadSQLInstallPath "${VERSION}" "${VERSION_INTERNAL}"
         SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
     ${EndIf}
 !macroend
 
-Function .onInit
-    ${IfNot} ${RunningX64}
-        MessageBox MB_ICONSTOP|MB_OK "This installer is for 64-bit systems only. Installation aborted."
+!macro HandleSSISTaskSelection VERSION
+    ${If} $0 == ${SSISTask${VERSION}}
+        SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
+            SectionSetFlags ${SSISTaskDesigntime${VERSION}} ${SF_SELECTED}
+        ${Else}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} 0
+            SectionSetFlags ${SSISTaskDesigntime${VERSION}} 0
+        ${EndIf}
+    ${ElseIf} $0 == ${SSISTaskDesigntime${VERSION}}
+        SectionGetFlags $0 $R1
+        ${If} $R1 & ${SF_SELECTED}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
+        ${Else}
+            SectionSetFlags ${SSISTaskRuntime${VERSION}} ${SF_SELECTED}
+        ${EndIf}
+    ${EndIf}
+!macroend
+
+;--------------------------------
+; Installer Section
+;
+Section "Install"
+    SetOutPath "$INSTDIR"
+    WriteUninstaller "$INSTDIR\uninstall.exe"
+    
+    ; Register in Add/Remove Programs
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask" "DisplayName" "${PRODUCT_NAME}"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask" "UninstallString" "$INSTDIR\uninstall.exe"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask" "InstallLocation" "$INSTDIR"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask" "Publisher" "${PRODUCT_AUTHOR}"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask" "DisplayVersion" "${PRODUCT_VERSION}"
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask" "NoModify" 1
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask" "NoRepair" 1
+SectionEnd
+
+;--------------------------------
+; Uninstaller Section
+;
+Section "Uninstall"
+    ${IfNot} ${FileExists} "$INSTDIR\GacInstaller.exe"
+        MessageBox MB_ICONSTOP|MB_OK "Installation corrupted. Uninstaller aborted."
+        DetailPrint "$INSTDIR\GacInstaller.exe not found."
         Abort
     ${EndIf}
 
-    ;Call CheckForPowerShellInstalled
-    ;Pop $R0
-    ;${If} $R0 == "0"
-    ;    MessageBox MB_ICONSTOP|MB_OK "PowerShell is not present or not functional."
-    ;    Abort
-    ;${EndIf}    
+    ; Detect SQL server instances paths
+    !insertmacro ReadSQLInstallPath "2017" "140"
+    !insertmacro ReadSQLInstallPath "2019" "150"
+    !insertmacro ReadSQLInstallPath "2022" "160"
+
+    ; Remove designtime files
+    !insertmacro DeleteFilesForVersion "2017"
+    !insertmacro DeleteFilesForVersion "2019"
+    !insertmacro DeleteFilesForVersion "2022"
+
+    Delete "$INSTDIR\GacInstaller.exe"
+    Delete "$INSTDIR\uninstall.exe"
+
+    ; Remove directory
+    RMDir "$INSTDIR"
+    ; Remove Add/Remove Programs entry
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SSISTelegramBotTask"
+SectionEnd
+
+;--------------------------------
+; Functions
+;
+Function .onInit
+    ${IfNot} ${RunningX64}
+        MessageBox MB_ICONSTOP|MB_OK "This product is for 64-bit systems only. Installation aborted."
+        Abort
+    ${EndIf}
 
     SetRegView 64
 
@@ -245,26 +292,6 @@ Function .onInit
     !insertmacro InitForSQLVersion "2019" "150" 2
     !insertmacro InitForSQLVersion "2022" "160" 4
 FunctionEnd
-
-!macro HandleSSISTaskSelection VERSION
-    ${If} $0 == ${SSISTask${VERSION}}
-        SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-            SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
-            SectionSetFlags ${SSISTaskDesigntime${VERSION}} ${SF_SELECTED}
-        ${Else}
-            SectionSetFlags ${SSISTaskRuntime${VERSION}} 0
-            SectionSetFlags ${SSISTaskDesigntime${VERSION}} 0
-        ${EndIf}
-    ${ElseIf} $0 == ${SSISTaskDesigntime${VERSION}}
-        SectionGetFlags $0 $R1
-        ${If} $R1 & ${SF_SELECTED}
-            SectionSetFlags ${SSISTaskRuntime${VERSION}} $R2
-        ${Else}
-            SectionSetFlags ${SSISTaskRuntime${VERSION}} ${SF_SELECTED}
-        ${EndIf}
-    ${EndIf}
-!macroend
 
 Function .onSelChange
     ; In $0 we have an ID of changed section
@@ -325,46 +352,3 @@ Function GetNumberOfSelectedSections
 
     Push $R0 ; Push the result (number of active sections) onto the stack
 FunctionEnd
-
-;; Returns the Powershell version or 0 if Powershell is not installed
-;Function CheckForPowerShellInstalled
-;    ; Internal variables:
-;    ; $R0 = Path to powershell.exe
-;    ; $R1 = High part of the file version
-;    ; $R2 = Low part of the file version
-;    ; $R3 = Exit code from PowerShell command
-;    ; $R4 = Temporary variable for version string
-;
-;    ; Set the path to powershell.exe
-;    StrCpy $R0 "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
-;
-;    ; Check if powershell.exe exists
-;    ${If} ${FileExists} "$R0"
-;        ; Get the file version of powershell.exe
-;        GetDLLVersion "$R0" $R1 $R2
-;        IntOp $R4 $R1 / 0x00010000  ; Extract major version
-;        IntOp $R5 $R1 & 0x0000FFFF  ; Extract minor version
-;        IntOp $R6 $R2 / 0x00010000  ; Extract build version
-;        IntOp $R7 $R2 & 0x0000FFFF  ; Extract revision version
-;        StrCpy $R0 "$R4.$R5.$R6.$R7"  ; Combine into version string
-;    ${Else}
-;        StrCpy $R0 "0"  ; PowerShell not found
-;    ${EndIf}
-;
-;    Push $R0  ; Return the result in $R0
-;FunctionEnd
-
-;--------------------------------
-;Uninstaller Section
-;
-;Section "Uninstall"
-;
-;  ;ADD YOUR OWN STUFF HERE...
-;
-;  ;Delete "$INSTDIR\Uninstall.exe"
-;
-;  ;RMDir "$INSTDIR"
-;
-;  ;DeleteRegKey /ifempty HKCU "Software\Modern UI Test"
-;
-;SectionEnd

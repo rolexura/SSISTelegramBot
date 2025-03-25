@@ -24,7 +24,7 @@ namespace XBase.TelegramBot {
         ConnectionType = "TGBOT",
         DisplayName = "Telegram Bot Connection Manager",
         Description = "Manages connections for a Telegram bot",
-        UITypeName = "XBase.TelegramBot.TelegramBotConnectionManagerUI,XBase.TelegramBotConnectionManager.UI," +
+        UITypeName = "XBase.TelegramBotConnectionManager.UI," +
 #if SQL2017
             "Version=1.0.0.2017," +
 #elif SQL2019

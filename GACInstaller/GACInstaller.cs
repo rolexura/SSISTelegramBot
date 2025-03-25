@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.EnterpriseServices.Internal;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -26,14 +27,14 @@ namespace GACInstaller {
 
 
         [STAThread]
-        public static void Main(string[] args) {
+        public static int Main(string[] args) {
             const string appName = "GAC Install Helper";
 
             if (args.Length < 1) {
                 MessageBox.Show(
                     "Usage:\n\nTo Install: GacInstaller.exe assembly.dll\nTo Uninstall: GacInstaller.exe /u AssemblyName,Version=x.x.x.x,PublicKeyToken=abcdef1234567890",
                         appName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                return 0;
             }
 
             var isUninstall = args[0].Equals("/u", StringComparison.OrdinalIgnoreCase);
@@ -42,16 +43,18 @@ namespace GACInstaller {
             if (string.IsNullOrEmpty(target)) {
                 MessageBox.Show("Error: Missing assembly information.", appName,
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return 1;
             }
 
             try {
                 if (isUninstall) {
-                    var result = UninstallFromGAC(target);
-                    if (result != 0) {
-                        MessageBox.Show($"Failed to remove assembly '{target}' from GAC.", appName,
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    return UninstallFromGAC(target);
+
+                    //var result = UninstallFromGAC(target);
+                    //if (result != 0) {
+                    //    MessageBox.Show($"Failed to remove assembly '{target}' from GAC.", appName,
+                    //            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //}
 
                     //if (result == 0) {
                     //    MessageBox.Show($"Assembly '{target}' removed from GAC successfully!", appName,
@@ -60,29 +63,40 @@ namespace GACInstaller {
                     //    MessageBox.Show($"Failed to remove assembly '{target}' from GAC.", appName,
                     //            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     //}
-
-                } else {
-                    if (!File.Exists(target)) {
-                        MessageBox.Show($"Error: File not found: {target}", appName,
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    var publish = new Publish();
-                    publish.GacInstall(target);
-                    //MessageBox.Show("Assembly installed to GAC successfully!", appName,
-                    //        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+
+                if (!File.Exists(target)) {
+                    MessageBox.Show($"Error: File not found: {target}", appName,
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return 1;
+                }
+
+                var publish = new Publish();
+                publish.GacInstall(target);
+                //MessageBox.Show("Assembly installed to GAC successfully!", appName,
+                //        MessageBoxButtons.OK, MessageBoxIcon.Information);
             } catch (Exception ex) {
                 MessageBox.Show($"Error: {ex.Message}", appName,
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return 1;
             }
+
+            return 0;
         }
 
         private static int UninstallFromGAC(string assemblyName) {
             CreateAssemblyCache(out var assemblyCache, 0);
             return assemblyCache?.UninstallAssembly(0, assemblyName, IntPtr.Zero, out _) ?? -1;
         }
+        
+        //private static bool IsAssemblyInGAC(string assemblyName) {
+        //    try {
+        //        var assembly = Assembly.Load(assemblyName); // Attempt to load from GAC
+        //        return assembly != null;
+        //    } catch (Exception ex) when (ex is FileNotFoundException || ex is FileLoadException) {
+        //        return false; // Assembly not found in GAC
+        //    }
+        //}
     }
 
 

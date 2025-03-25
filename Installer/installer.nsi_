@@ -99,34 +99,22 @@ Var SQL2022InstallPath64
 !macro InstallDesignTimeFilesForVersion VERSION
     ; Install files for 64-bit SQL Server
     SetOutPath "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}"
-    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
     File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
     SetOutPath "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}"
-    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
     File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 
     ; Install files for 32-bit SQL Server
     SetOutPath "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}"
-    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
     File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
     SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
-    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
     File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
 !macroend
 
 !macro DeleteFilesForVersion VERSION
-    Delete "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.dll"
+    Delete "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.UI.dll"
     Delete "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.UI.dll"
-    
-    Delete "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.dll"
-    Delete "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.UI.dll"
-
-    Delete "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}\XBase.TelegramBotTask.dll"
     Delete "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}\XBase.TelegramBotTask.UI.dll"
-
-    Delete "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}\XBase.TelegramBotTask.dll"
     Delete "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}\XBase.TelegramBotTask.UI.dll"
-
     ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotConnectionManager,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
     ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotTask,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
 !macroend

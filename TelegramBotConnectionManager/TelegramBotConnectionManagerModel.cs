@@ -17,11 +17,10 @@ using System;
 
 namespace XBase.TelegramBot {
     public class TelegramBotConnectionManagerModel {
-        public const int CurrentVersion = 1;
+        public const int CurrentFormatVersion = 1;
 
         private string _chatID = string.Empty;
         private string _accessToken = string.Empty;
-        public int Version { get; set; } = 0;
 
         public string ChatID {
             get => _chatID;

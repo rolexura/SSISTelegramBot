@@ -24,7 +24,7 @@ namespace XBase.TelegramBot {
         ConnectionType = "TGBOT",
         DisplayName = "Telegram Bot Connection Manager",
         Description = "Manages connections for a Telegram bot",
-        UITypeName = "XBase.TelegramBotConnectionManager.UI," +
+        UITypeName = "XBase.TelegramBot.TelegramBotConnectionManagerUI,XBase.TelegramBotConnectionManager.UI," +
 #if SQL2017
             "Version=1.0.0.2017," +
 #elif SQL2019
@@ -49,7 +49,7 @@ namespace XBase.TelegramBot {
                     using (var writer = XmlWriter.Create(stringWriter, new XmlWriterSettings { Indent = false, OmitXmlDeclaration = true })) {
                         writer.WriteStartDocument();
                         writer.WriteStartElement("ConnectionParameters");
-                        writer.WriteAttributeString("Version", TelegramBotConnectionManagerModel.CurrentVersion.ToString());
+                        writer.WriteAttributeString("FormatVersion", TelegramBotConnectionManagerModel.CurrentFormatVersion.ToString());
                         writer.WriteElementString("ChatID", Model.ChatID);
                         writer.WriteElementString("AccessToken", Model.AccessToken);
                         writer.WriteEndElement(); // End of ConnectionParameters
@@ -70,11 +70,6 @@ namespace XBase.TelegramBot {
                                     || !reader.HasAttributes) {
                                 break;
                             }
-                            var versionString = reader.GetAttribute("Version");
-                            if (!int.TryParse(versionString, out var version) || version <= 0) {
-                                break;
-                            }
-                            Model.Version = version;
                             firstElement = false;
                             continue;
                         }
@@ -124,13 +119,11 @@ namespace XBase.TelegramBot {
         public override DTSExecResult Validate(IDTSInfoEvents infoEvents) {
             var chatIDNotSet = string.IsNullOrWhiteSpace(Model.ChatID);
             var accessTokenNotSet = string.IsNullOrWhiteSpace(Model.AccessToken);
-            if (!chatIDNotSet && !accessTokenNotSet && Model.Version != 0) {
+            if (!chatIDNotSet && !accessTokenNotSet) {
                 return DTSExecResult.Success;
             }
 
-            var errorMessage = Model.Version == 0
-                ? "Error reading connection parameters"
-                : $"{(chatIDNotSet ? "ChatID" : "Access token")} not set";
+            var errorMessage = $"{(chatIDNotSet ? "ChatID" : "Access token")} not set";
             infoEvents.FireError(0, "TelegramBotConnectionManager",
                 errorMessage,  string.Empty, 0);
             return DTSExecResult.Failure;

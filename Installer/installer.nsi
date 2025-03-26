@@ -16,6 +16,7 @@ Unicode true
 !define DTS_CONN_PATH "DTS\Connections"
 !define DTS_TASK_PATH "DTS\Tasks"
 !define PUBLIC_KEY_TOKEN "54ddf9908a8304bd"
+!define BIN_PATH "Release"
 
 ;--------------------------------
 ;General
@@ -85,8 +86,8 @@ Var SQL2022InstallPath64
 ; Macro to generate runtime section contents for given SQL server version
 !macro InstallRuntimeFilesForVersion VERSION
     SetOutPath "$INSTDIR\${VERSION}"
-    File "..\TelegramBotConnectionManager\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
-    File "..\TelegramBotTask\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
+    File "..\TelegramBotConnectionManager\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+    File "..\TelegramBotTask\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotTask.dll"
     ExecWait '"$INSTDIR\GacInstaller.exe" "$INSTDIR\${VERSION}\XBase.TelegramBotConnectionManager.dll"'
     ExecWait '"$INSTDIR\GacInstaller.exe" "$INSTDIR\${VERSION}\XBase.TelegramBotTask.dll"'
     Delete "$INSTDIR\${VERSION}\*.*" ; This files are installed in GAC and not needed more
@@ -99,19 +100,23 @@ Var SQL2022InstallPath64
 !macro InstallDesignTimeFilesForVersion VERSION
     ; Install files for 64-bit SQL Server
     SetOutPath "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}"
-    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
-    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
+    File "..\TelegramBotConnectionManagerUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+    File "..\TelegramBotConnectionManagerUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
     SetOutPath "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}"
-    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
-    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
+    File "..\TelegramBotTaskUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotTask.dll"
+    File "..\TelegramBotTaskUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotTask.UI.dll"
 
     ; Install files for 32-bit SQL Server
     SetOutPath "$SQL${VERSION}InstallPath32${DTS_CONN_PATH}"
-    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.dll"
-    File "..\TelegramBotConnectionManagerUI\bin\Release-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
+    File "..\TelegramBotConnectionManagerUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotConnectionManager.dll"
+    File "..\TelegramBotConnectionManagerUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotConnectionManager.UI.dll"
+    
     SetOutPath "$SQL${VERSION}InstallPath32${DTS_TASK_PATH}"
-    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.dll"
-    File "..\TelegramBotTaskUI\bin\Release-${VERSION}\XBase.TelegramBotTask.UI.dll"
+    File "..\TelegramBotTaskUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotTask.dll"
+    File "..\TelegramBotTaskUI\bin\${BIN_PATH}-${VERSION}\XBase.TelegramBotTask.UI.dll"
+
+    ExecWait '"$INSTDIR\GacInstaller.exe" "$SQL${VERSION}InstallPath64${DTS_CONN_PATH}\XBase.TelegramBotConnectionManager.UI.dll"'
+    ExecWait '"$INSTDIR\GacInstaller.exe" "$SQL${VERSION}InstallPath64${DTS_TASK_PATH}\XBase.TelegramBotTask.UI.dll"'
 !macroend
 
 !macro DeleteFilesForVersion VERSION
@@ -129,6 +134,8 @@ Var SQL2022InstallPath64
 
     ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotConnectionManager,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
     ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotTask,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
+    ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotConnectionManager.UI,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
+    ExecWait "$INSTDIR\GacInstaller.exe /u XBase.TelegramBotTask.UI,Version=${PRODUCT_VERSION}.${VERSION},PublicKeyToken=${PUBLIC_KEY_TOKEN}"
 !macroend
 
 ; VERSION_INTERNAL - "Internal" MS SQL version number ("140"/"150/"160")
